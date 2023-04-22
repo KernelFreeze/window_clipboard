@@ -1,5 +1,5 @@
 [package]
-name = "window_clipboard"
+name = "etheryal-window-clipboard"
 description = "A library to obtain clipboard access from a `raw-window-handle`"
 readme = "README.md"
 keywords = ["clipboard", "window", "ui", "gui", "raw-window-handle"]
@@ -37,8 +37,8 @@ clipboard_x11 = { path = "./crates/x11" }
 clipboard_wayland = { path = "./crates/wayland" }
 
 [workspace.package]
-version = "0.3.0"
-authors = ["Héctor Ramón Jiménez <hector0193@gmail.com>"]
+version = "0.4.0"
+authors = ["Héctor Ramón Jiménez <hector0193@gmail.com>", "Celeste Peláez <celeste@etheryal.net>"]
 edition = "2021"
 description = "A library to obtain clipboard access from a `raw-window-handle`"
 license = "MIT"

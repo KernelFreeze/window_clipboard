@@ -1,11 +1,5 @@
-# window_clipboard
-[![Test Status](https://github.com/hecrj/window_clipboard/workflows/Test/badge.svg)](https://github.com/hecrj/window_clipboard/actions)
-[![Documentation](https://docs.rs/window_clipboard/badge.svg)][documentation]
-[![Crates.io](https://img.shields.io/crates/v/window_clipboard.svg)](https://crates.io/crates/window_clipboard)
-[![License](https://img.shields.io/crates/l/window_clipboard.svg)](https://github.com/hecrj/window_clipboard/blob/master/LICENSE)
+# etheryal-window-clipboard
+[![Test Status](https://github.com/KernelFreeze/window-clipboard/workflows/Test/badge.svg)](https://github.com/KernelFreeze/window-clipboard/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A library to obtain clipboard access from a `raw-window-handle`.
-
-__Very experimental, use at your own risk!__
-
-[documentation]: https://docs.rs/window_clipboard
+A library to obtain clipboard access from a `raw-window-handle`. This is a fork of [hecrj/window_clipboard](https://github.com/hecrj/window_clipboard).
