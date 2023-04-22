@@ -1,0 +1,12 @@
+[package]
+name = "clipboard_wayland"
+description = "A library to obtain access to the clipboard of a Wayland window"
+keywords = ["clipboard", "wayland"]
+version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[dependencies]
+smithay-clipboard = "0.6"

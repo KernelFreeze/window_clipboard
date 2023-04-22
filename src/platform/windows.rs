@@ -1,13 +1,13 @@
-use crate::ClipboardProvider;
+use std::error::Error;
 
 use clipboard_win::{get_clipboard_string, set_clipboard_string};
 use raw_window_handle::HasRawDisplayHandle;
 
-use std::error::Error;
+use crate::ClipboardProvider;
 
 pub fn connect<W: HasRawDisplayHandle>(
     _window: &W,
-) -> Result<Box<dyn ClipboardProvider>, Box<dyn Error>> {
+) -> Result<Box<dyn ClipboardProvider + Send + Sync>, Box<dyn Error>> {
     Ok(Box::new(Clipboard))
 }
 

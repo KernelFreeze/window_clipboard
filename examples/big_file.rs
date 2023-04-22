@@ -1,10 +1,8 @@
 use rand::distributions::{Alphanumeric, Distribution};
 use window_clipboard::Clipboard;
-use winit::{
-    event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
-    window::WindowBuilder,
-};
+use winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
+use winit::event_loop::{ControlFlow, EventLoop};
+use winit::window::WindowBuilder;
 
 fn main() {
     let mut rng = rand::thread_rng();
@@ -22,8 +20,7 @@ fn main() {
         .build(&event_loop)
         .unwrap();
 
-    let mut clipboard =
-        Clipboard::connect(&window).expect("Connect to clipboard");
+    let mut clipboard = Clipboard::connect(&window).expect("Connect to clipboard");
 
     clipboard.write(data.clone()).unwrap();
 
@@ -44,7 +41,7 @@ fn main() {
             let new_data = clipboard.read().expect("Read data");
             assert_eq!(data, new_data, "Data is equal");
             println!("Data copied successfully!");
-        }
+        },
         Event::WindowEvent {
             event: WindowEvent::CloseRequested,
             window_id,

@@ -1,9 +1,7 @@
 use window_clipboard::Clipboard;
-use winit::{
-    event::{Event, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
-    window::WindowBuilder,
-};
+use winit::event::{Event, WindowEvent};
+use winit::event_loop::{ControlFlow, EventLoop};
+use winit::window::WindowBuilder;
 
 fn main() {
     let event_loop = EventLoop::new();
@@ -18,7 +16,7 @@ fn main() {
     event_loop.run(move |event, _, control_flow| match event {
         Event::MainEventsCleared => {
             println!("{:?}", clipboard.read());
-        }
+        },
         Event::WindowEvent {
             event: WindowEvent::CloseRequested,
             window_id,

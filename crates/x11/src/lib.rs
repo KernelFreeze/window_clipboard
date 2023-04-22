@@ -1,19 +1,18 @@
 #[forbid(unsafe_code)]
 mod error;
 
-pub use error::Error;
+use std::collections::HashMap;
+use std::sync::{Arc, RwLock};
+use std::thread;
+use std::time::{Duration, Instant};
 
+pub use error::Error;
 use x11rb::connection::Connection as _;
 use x11rb::errors::ConnectError;
 use x11rb::protocol::xproto::{self, Atom, AtomEnum, EventMask, Window};
 use x11rb::protocol::Event;
 use x11rb::rust_connection::RustConnection as Connection;
 use x11rb::wrapper::ConnectionExt;
-
-use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
-use std::thread;
-use std::time::{Duration, Instant};
 
 const POLL_DURATION: std::time::Duration = Duration::from_micros(50);
 
@@ -75,10 +74,9 @@ impl Clipboard {
 
         let _ = self.writer.connection.flush()?;
 
-        let reply =
-            xproto::get_selection_owner(&self.writer.connection, selection)
-                .map_err(Into::into)
-                .and_then(|cookie| cookie.reply())?;
+        let reply = xproto::get_selection_owner(&self.writer.connection, selection)
+            .map_err(Into::into)
+            .and_then(|cookie| cookie.reply())?;
 
         if reply.owner == self.writer.window {
             Ok(())
@@ -89,11 +87,7 @@ impl Clipboard {
 
     /// load value.
     fn load(
-        &self,
-        selection: Atom,
-        target: Atom,
-        property: Atom,
-        timeout: impl Into<Option<Duration>>,
+        &self, selection: Atom, target: Atom, property: Atom, timeout: impl Into<Option<Duration>>,
     ) -> Result<Vec<u8>, Error> {
         let mut buff = Vec::new();
         let timeout = timeout.into();
@@ -104,35 +98,29 @@ impl Clipboard {
             selection,
             target,
             property,
-            x11rb::CURRENT_TIME, // FIXME ^
-                                 // Clients should not use CurrentTime for the time argument of a ConvertSelection request.
-                                 // Instead, they should use the timestamp of the event that caused the request to be made.
+            x11rb::CURRENT_TIME, /* FIXME ^
+                                  * Clients should not use CurrentTime for
+                                  * the time argument of a ConvertSelection
+                                  * request.
+                                  * Instead, they should use the timestamp
+                                  * of the event that caused the request to
+                                  * be made. */
         )?;
         let _ = self.reader.connection.flush()?;
 
         self.process_event(&mut buff, selection, target, property, timeout)?;
 
-        let _ = xproto::delete_property(
-            &self.reader.connection,
-            self.reader.window,
-            property,
-        )?;
+        let _ = xproto::delete_property(&self.reader.connection, self.reader.window, property)?;
         let _ = self.reader.connection.flush()?;
 
         Ok(buff)
     }
 
     fn process_event<T>(
-        &self,
-        buff: &mut Vec<u8>,
-        selection: Atom,
-        target: Atom,
-        property: Atom,
-        timeout: T,
+        &self, buff: &mut Vec<u8>, selection: Atom, target: Atom, property: Atom, timeout: T,
     ) -> Result<(), Error>
     where
-        T: Into<Option<Duration>>,
-    {
+        T: Into<Option<Duration>>, {
         let mut is_incr = false;
         let timeout = timeout.into();
         let start_time = if timeout.is_some() {
@@ -157,7 +145,7 @@ impl Clipboard {
                 None => {
                     thread::park_timeout(POLL_DURATION);
                     continue;
-                }
+                },
             };
 
             match event {
@@ -166,8 +154,9 @@ impl Clipboard {
                         continue;
                     };
 
-                    // Note that setting the property argument to None indicates that the
-                    // conversion requested could not be made.
+                    // Note that setting the property argument to None indicates
+                    // that the conversion requested could
+                    // not be made.
                     if event.property == AtomEnum::NONE.into() {
                         break;
                     }
@@ -205,7 +194,7 @@ impl Clipboard {
 
                     buff.extend_from_slice(&reply.value);
                     break;
-                }
+                },
                 Event::PropertyNotify(event) if is_incr => {
                     if event.state != xproto::Property::NEW_VALUE {
                         continue;
@@ -245,8 +234,8 @@ impl Clipboard {
                     } else {
                         break;
                     }
-                }
-                _ => {}
+                },
+                _ => {},
             }
         }
 
@@ -284,15 +273,16 @@ fn get_atom(connection: &Connection, name: &str) -> Result<Atom, Error> {
 impl Context {
     pub fn new(displayname: Option<&str>) -> Result<Self, Error> {
         let (connection, screen) = Connection::connect(displayname)?;
-        let window = connection.generate_id().map_err(|_| {
-            Error::ConnectionFailed(ConnectError::InvalidScreen)
-        })?;
+        let window = connection
+            .generate_id()
+            .map_err(|_| Error::ConnectionFailed(ConnectError::InvalidScreen))?;
 
         {
-            let screen =
-                connection.setup().roots.get(screen as usize).ok_or(
-                    Error::ConnectionFailed(ConnectError::InvalidScreen),
-                )?;
+            let screen = connection
+                .setup()
+                .roots
+                .get(screen as usize)
+                .ok_or(Error::ConnectionFailed(ConnectError::InvalidScreen))?;
 
             let _ = xproto::create_window(
                 &connection,
@@ -307,8 +297,7 @@ impl Context {
                 xproto::WindowClass::INPUT_OUTPUT,
                 screen.root_visual,
                 &xproto::CreateWindowAux::new().event_mask(
-                    xproto::EventMask::STRUCTURE_NOTIFY
-                        | xproto::EventMask::PROPERTY_CHANGE,
+                    xproto::EventMask::STRUCTURE_NOTIFY | xproto::EventMask::PROPERTY_CHANGE,
                 ),
             )?;
 
@@ -351,11 +340,10 @@ impl Worker {
                         None => continue,
                     };
 
-                    let &(target, ref value) =
-                        match selections.get(&event.selection) {
-                            Some(key_value) => key_value,
-                            None => continue,
-                        };
+                    let &(target, ref value) = match selections.get(&event.selection) {
+                        Some(key_value) => key_value,
+                        None => continue,
+                    };
 
                     if event.target == self.context.atoms.targets {
                         let data = [self.context.atoms.targets, target];
@@ -402,12 +390,12 @@ impl Worker {
                     .expect("Send event");
 
                     let _ = self.context.connection.flush();
-                }
+                },
                 Event::SelectionClear(event) => {
                     if let Ok(mut write_setmap) = self.selections.write() {
                         write_setmap.remove(&event.selection);
                     }
-                }
+                },
                 _ => (),
             }
         }

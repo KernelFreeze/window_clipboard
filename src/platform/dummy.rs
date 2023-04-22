@@ -1,12 +1,12 @@
-use crate::ClipboardProvider;
-
 use raw_window_handle::HasRawDisplayHandle;
+
+use crate::ClipboardProvider;
 
 struct Dummy;
 
 pub fn connect<W: HasRawDisplayHandle>(
     _window: &W,
-) -> Result<Box<dyn ClipboardProvider>, Box<dyn std::error::Error>> {
+) -> Result<Box<dyn ClipboardProvider + Send + Sync>, Box<dyn std::error::Error>> {
     Ok(Box::new(Dummy))
 }
 
@@ -15,10 +15,7 @@ impl ClipboardProvider for Dummy {
         Err(Box::new(Error::Unimplemented))
     }
 
-    fn write(
-        &mut self,
-        _contents: String,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    fn write(&mut self, _contents: String) -> Result<(), Box<dyn std::error::Error>> {
         Err(Box::new(Error::Unimplemented))
     }
 }

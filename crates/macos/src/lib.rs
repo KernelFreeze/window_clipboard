@@ -14,12 +14,12 @@
 #[macro_use]
 extern crate objc;
 
-use objc::runtime::{Class, Object};
-use objc_foundation::{INSArray, INSObject, INSString};
-use objc_foundation::{NSArray, NSDictionary, NSObject, NSString};
-use objc_id::{Id, Owned};
 use std::error::Error;
 use std::mem::transmute;
+
+use objc::runtime::{Class, Object};
+use objc_foundation::{INSArray, INSObject, INSString, NSArray, NSDictionary, NSObject, NSString};
+use objc_id::{Id, Owned};
 
 pub struct Clipboard {
     pasteboard: Id<Object>,
@@ -31,10 +31,8 @@ extern "C" {}
 
 impl Clipboard {
     pub fn new() -> Result<Clipboard, Box<dyn Error>> {
-        let cls =
-            Class::get("NSPasteboard").ok_or("Class::get(\"NSPasteboard\")")?;
-        let pasteboard: *mut Object =
-            unsafe { msg_send![cls, generalPasteboard] };
+        let cls = Class::get("NSPasteboard").ok_or("Class::get(\"NSPasteboard\")")?;
+        let pasteboard: *mut Object = unsafe { msg_send![cls, generalPasteboard] };
         if pasteboard.is_null() {
             return Err("NSPasteboard#generalPasteboard returned null".into());
         }
@@ -47,22 +45,18 @@ impl Clipboard {
             let cls: Id<Class> = unsafe { Id::from_ptr(class("NSString")) };
             unsafe { transmute(cls) }
         };
-        let classes: Id<NSArray<NSObject, Owned>> =
-            NSArray::from_vec(vec![string_class]);
+        let classes: Id<NSArray<NSObject, Owned>> = NSArray::from_vec(vec![string_class]);
         let options: Id<NSDictionary<NSObject, NSObject>> = NSDictionary::new();
         let string_array: Id<NSArray<NSString>> = unsafe {
-            let obj: *mut NSArray<NSString> = msg_send![self.pasteboard, readObjectsForClasses:&*classes options:&*options];
+            let obj: *mut NSArray<NSString> =
+                msg_send![self.pasteboard, readObjectsForClasses:&*classes options:&*options];
             if obj.is_null() {
-                return Err(
-                    "pasteboard#readObjectsForClasses:options: returned null"
-                        .into(),
-                );
+                return Err("pasteboard#readObjectsForClasses:options: returned null".into());
             }
             Id::from_ptr(obj)
         };
         if string_array.count() == 0 {
-            Err("pasteboard#readObjectsForClasses:options: returned empty"
-                .into())
+            Err("pasteboard#readObjectsForClasses:options: returned empty".into())
         } else {
             Ok(string_array[0].as_str().to_owned())
         }
@@ -71,8 +65,7 @@ impl Clipboard {
     pub fn write(&mut self, data: String) -> Result<(), Box<dyn Error>> {
         let string_array = NSArray::from_vec(vec![NSString::from_str(&data)]);
         let _: usize = unsafe { msg_send![self.pasteboard, clearContents] };
-        let success: bool =
-            unsafe { msg_send![self.pasteboard, writeObjects: string_array] };
+        let success: bool = unsafe { msg_send![self.pasteboard, writeObjects: string_array] };
         return if success {
             Ok(())
         } else {

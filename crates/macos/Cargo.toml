@@ -1,13 +1,12 @@
 [package]
 name = "clipboard_macos"
-version = "0.1.0"
-authors = ["Héctor Ramón Jiménez <hector0193@gmail.com>"]
-edition = "2018"
 description = "A library to obtain access to the macOS clipboard"
-license = "Apache-2.0"
-repository = "https://github.com/hecrj/window_clipboard"
-documentation = "https://docs.rs/clipboard_macos"
 keywords = ["clipboard", "macos"]
+version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
 
 [package.metadata.docs.rs]
 default-target = "x86_64-apple-darwin"
