@@ -1,4 +1,4 @@
-use window_clipboard::Clipboard;
+use etheryal_window_clipboard::Clipboard;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;

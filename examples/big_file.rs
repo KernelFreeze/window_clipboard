@@ -1,5 +1,5 @@
 use rand::distributions::{Alphanumeric, Distribution};
-use window_clipboard::Clipboard;
+use etheryal_window_clipboard::Clipboard;
 use winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
